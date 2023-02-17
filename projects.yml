@@ -1,0 +1,52 @@
+---
+theme: basic
+projects:
+  - name: Helium
+    id: 12345
+    type: project
+    work_categories:
+      - process efficiency
+      - controlled introduction
+      - production change
+      - RCA
+      - compliance
+
+  - name: k8s
+    id: 12346
+    type: project
+    work_categories:
+      - process efficiency
+      - controlled introduction
+      - production change
+      - RCA
+      - compliance
+
+  - name: Boron
+    id: 12347
+    type: problem
+    work_categories:
+      - process efficiency
+      - controlled introduction
+      - production change
+      - RCA
+      - compliance
+
+  - name: Steel
+    id: 12348
+    type: project
+    work_categories:
+      - process efficiency
+      - controlled introduction
+      - production change
+      - RCA
+      - compliance
+
+  - name: Argon
+    id: 12349
+    type: project
+    work_categories:
+      - process efficiency
+      - controlled introduction
+      - production change
+      - RCA
+      - compliance
