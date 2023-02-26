@@ -1,7 +1,8 @@
 ---
 theme: basic
 projects:
-  - name: Helium
+
+  - name: Mercury
     id: 12345
     type: project
     work_categories:
@@ -11,7 +12,7 @@ projects:
       - RCA
       - compliance
 
-  - name: k8s
+  - name: Venus
     id: 12346
     type: project
     work_categories:
@@ -21,7 +22,7 @@ projects:
       - RCA
       - compliance
 
-  - name: Boron
+  - name: Earth
     id: 12347
     type: problem
     work_categories:
@@ -31,7 +32,7 @@ projects:
       - RCA
       - compliance
 
-  - name: Steel
+  - name: Mars
     id: 12348
     type: project
     work_categories:
@@ -41,7 +42,7 @@ projects:
       - RCA
       - compliance
 
-  - name: Argon
+  - name: Saturn
     id: 12349
     type: project
     work_categories:
