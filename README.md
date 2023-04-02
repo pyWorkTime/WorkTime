@@ -90,12 +90,10 @@
 
 [![Product Name Screen Shot][product-screenshot]](https://example.com)
 
-Here's a blank template to get started: To avoid retyping too much info. Do a search and replace with your text editor for the following: `pyWorkTime`, `WorkTime`, `twitter_handle`, `linkedin_username`, `email_client`, `email`, `WorkTime`, `Work Time attempts to make it effortless to track time spent on various tasks or projects.  A very simple user interface driven by the mouse makes it easy to start and stop timers on projects.  All results are automatically exported to an excel sheet.`
-
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
-
+<!--
 ### Built With
 
 * [![Next][Next.js]][Next-url]
@@ -106,7 +104,7 @@ Here's a blank template to get started: To avoid retyping too much info. Do a se
 * [![Laravel][Laravel.com]][Laravel-url]
 * [![Bootstrap][Bootstrap.com]][Bootstrap-url]
 * [![JQuery][JQuery.com]][JQuery-url]
-
+-->
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
