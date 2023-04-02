@@ -655,7 +655,7 @@ class menu:
                 value = text.get('1.0', 'end-1c')
                 
                 # Print the value entered by the user
-                print(value.strip())
+                print(value.strip().replace("\n", ""))
                 self.df.loc[last_row_index, 'remark'] = value.strip().replace("\n", "")
                 # Close the dialog window
                 dialog.destroy()
