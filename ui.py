@@ -1,20 +1,42 @@
 import tkinter as tk
+
 import math
 import re  # for working with hex color codes
-import time
-from button import PrimaryButton
-from arc import PrimaryArc
 
+from button import PrimaryButton
+import pandas as pd
+import os
+import numpy as np
+from datetime import datetime, timedelta
+
+from openpyxl import Workbook
+from openpyxl.utils import get_column_letter
 
 class menu:
-    def __init__(self, data) -> None:
+    def __init__(self, data, parquet_file) -> None:
+
+        #   yaml  data
         self.data = data
+
+        self.parquet_file = parquet_file
+
+        self.df = pd.read_parquet(os.path.abspath(parquet_file))
+        self.excel_path = f"{os.path.abspath(parquet_file)}.xlsx"
         self.root = tk.Tk()
         self.set_root_properties()
         self.x_origin, self.y_origin = self.root.winfo_pointerxy()
 
+        #def on_focus_out(event):
+        #    # Exit the program
+        #    print("LOST FOCUS")
+        #    self.root.destroy()
+        #
+        ## Bind the on_focus_out function to the <FocusOut> event of the main window
+        #self.root.bind('<FocusOut>', on_focus_out)
+
+
         #  default colors
-        self.colors = {
+        default_colors = {
             "bg": "#656565",
             "focus": "#D55A00",
             "button": "#000000",
@@ -23,18 +45,59 @@ class menu:
             "dark_text": "#323232",
         }
 
-        # self.oval_count     = 12
-        # inner circle is medium gray background, black buttons, dark grey text, light label streaks with black text on the streak
-        #
-        # on primary highlight the primary labels and text disappear, the selected circle is highlighted, primary circle text lights up as white, a sub-coral appears
-        #
-        # sub coral is surrounded by a medium-light gray, has black buttons with dark grey text, light label streaks with black text on the streak
-        ##000000   <-- darkest
-        ##323232
-        ##656565
-        ##989898
-        ##BABABA
-        ##DEDEDE    <-- lightest
+
+        #  monokai-
+        #  Background: (46, 46, 46);  #2e2e2e
+        #  Comments: (121, 121, 121); #797979
+        #  White: (214, 214, 214);    #d6d6d6
+        #  Yellow: (229, 181, 103);   #e5b567
+        #  Green: (180, 210, 115);    #b4d273
+        #  Orange: (232, 125, 62);    #e87d3e
+        #  Purple: (158, 134, 200);   #9e86c8
+        #  Pink: (176, 82, 121);      #b05279
+        #  Blue: (108, 153, 187);     #6c99bb
+        monokai_colors = {
+            "bg":           "#2e2e2e",
+            "focus":        "#e87d3e",
+            "button":       "#000000",
+            "text":         "#d6d6d6",
+            "label":        "#d6d6d6",
+            "dark_text":    "#2e2e2e",
+            "start_border": "#b4d273",
+        }
+
+        #  SOLARIZED	HEX     TERMCOL	  HEX	 
+        #  base03	#002b36     brblack	  #1c1c1c
+        #  base02	#073642     black	  #262626
+        #  base01	#586e75     brgreen	  #585858
+        #  base00	#657b83     bryellow  #626262
+        #  base0	#839496     brblue	  #808080
+        #  base1	#93a1a1     brcyan	  #8a8a8a
+        #  base2	#eee8d5     white	  #e4e4e4
+        #  base3	#fdf6e3     brwhite	  #ffffd7
+        #  yellow	#b58900     yellow	  #af8700
+        #  orange	#cb4b16     brred	  #d75f00
+        #  red	    #d30102     red	      #af0000
+        #  magenta	#d33682     magenta	  #af005f
+        #  violet	#6c71c4     brmagenta #5f5faf
+        #  blue	    #268bd2     blue	  #0087ff
+        #  cyan	    #2aa198     cyan	  #00afaf
+        #  green	#859900     green	  #5f8700
+
+        #  these need some work still
+        solarized_colors = {
+            "bg":        "#1c1c1c",
+            "focus":     "#af8700",
+            "button":    "#626262",
+            "text":      "#8a8a8a",
+            "label":     "#ffffd7",
+            "dark_text": "#1c1c1c",
+        }
+
+        #self.colors = default_colors
+        self.colors = monokai_colors
+        #self.colors = solarized_colors
+
 
         #  setup canvas
         self.canvas = tk.Canvas(self.root, width=900, height=900)
@@ -62,8 +125,19 @@ class menu:
 
         #  to be populated with primary button objects
         self.buttons = []
-
+        self.arcs = []
+        self.secondary_buttons = {}
+        self.secondary_buttons_list = []
         for button_number, project in enumerate(self.data["projects"]):
+            
+            #  if there are no records for this project yet,
+            if self.df[self.df['project_name'] == project['name']].empty:
+                #  stop time is one second from now
+                one_second_later = datetime.now() + timedelta(seconds=1)
+                #  generate a first blank row, this makes other logic easier to handle later
+                self.df.loc[len(self.df)] = [project['id'], project['name'], pd.to_datetime(datetime.now().strftime('%Y-%m-%d %H:%M:%S')), pd.to_datetime(one_second_later.strftime('%Y-%m-%d %H:%M:%S')), np.nan, "starter entry - ignore"]
+
+
             #  basic math for this button
             angle = (button_number * self.step) + (
                 self.step // 2
@@ -77,6 +151,7 @@ class menu:
             radian_end = angle + (self.step // 2)  #  for future use
 
             radius = self.primary_radius / self.oval_scale_factor
+            
             self.buttons.append(
                 PrimaryButton(
                     project,
@@ -91,6 +166,7 @@ class menu:
                 )
             )
 
+            self.secondary_buttons_list.append([])
             #  functions are handled in the parent class
             self.canvas.tag_bind(
                 f"button{button_number}",
@@ -124,7 +200,7 @@ class menu:
                 ),
             )
 
-            num_circles = 4
+            num_circles = 3
             circle_radius = radius
 
             #  This formula establishes the relation between radius of big circle R,
@@ -150,7 +226,7 @@ class menu:
             #  Arc Length / r = θ
             #  θ = Arc Length / r
 
-            arc_radius = 100  #  start small, increase until we can fit all buttons
+            arc_radius = 80  #  start small, increase until we can fit all buttons
 
             #  If the angle required to produce the arc of necessary size is bigger than 120
             #    then we can slowly begin to increase the size of the radius
@@ -158,15 +234,26 @@ class menu:
             arc_angle = math.degrees(circumfrence_container / arc_radius)
 
             #  Calculate the angles for the start and end points of the arc
-            radian_start = angle - (arc_angle / 2) % 360
-            radian_end = (angle + (arc_angle / 2)) % 360
+            if y < self.y_origin:
+                radian_start = angle + (arc_angle / 2) % 360
+                radian_end = (angle - (arc_angle / 2)) % 360
+            else:
+                radian_start = angle - (arc_angle / 2) % 360
+                radian_end = (angle + (arc_angle / 2)) % 360
+
+            if x < self.x_origin:  # mirror across 180* mark
+                mirror_line = 180
+            else:  # mirror across 360* mark
+                mirror_line = 360
+            
+            #  mirror the arc vertically, not sure why this needs to be done - can be investigated later
+            radian_start = mirror_line - (radian_start - mirror_line)
+            radian_end = mirror_line - (radian_end - mirror_line)
 
             start_angle = radian_start
             end_angle = radian_end
 
             while arc_angle > 120:
-                print("loop", arc_angle)
-                time.sleep(1)
                 arc_radius = arc_radius * 1.2
                 #  the answer here is in radians, it needs to be in degrees
                 arc_angle = start_angle + math.degrees(
@@ -175,68 +262,178 @@ class menu:
             total_degrees = end_angle - start_angle
             center_x = x
             center_y = y
+
+            #if center_y < self.y_origin:
+            #    center_y = center_y * -1
+
             coordinates = [
                 center_x - arc_radius,
                 center_y - arc_radius,
                 center_x + arc_radius,
                 center_y + arc_radius,
             ]
+
             #  Draw the arc using the create_arc method
-            self.canvas.create_arc(
+            arc_id = self.canvas.create_arc(
                 coordinates,
-                # center_y-arc_radius,
-                # center_x+arc_radius,
-                # center_y+arc_radius,
                 start=start_angle,
                 extent=end_angle - start_angle,
                 # extent=arc_angle,
-                tags=f"{project['name']}",
+                tags=(f"arc{button_number}", f"arc_{project['name']}", "arc", "secondary"),
                 outline=self.change_color_brightness(self.colors["bg"], 25),
-                width=circle_radius * 2,
+                width=circle_radius * 1.4,
                 fill=self.change_color_brightness(self.colors["bg"], 25),
                 state=tk.HIDDEN,
             )
 
-            #  Draw the buttons using the create_oval method
+            self.arcs.append(arc_id)
+
+
+            #  functions are handled in the parent class
+            self.canvas.tag_bind(
+                f"arc_{project['name']}",
+                "<Enter>",
+                lambda event, project=project, arc=self.arcs[button_number]: self.arc_on_enter(
+                    event, project, arc
+                ),
+            )
+
+            self.canvas.tag_bind(
+                f"arc_{project['name']}",
+                "<Leave>",
+                lambda event, project=project, arc=self.arcs[button_number]: self.arc_on_leave(
+                    event, project, arc
+                ),
+            )
+
+
+            #  Calculate gap in degrees for each button
             step = total_degrees / (num_circles - 1)
+            small_button_labels = ['Start', 'Stop', 'Remark']
+            
             for i in range(num_circles):
                 # angle = (i * total_degrees / num_circles) + start_angle
                 angle = start_angle + (i * step)
                 x = center_x + arc_radius * math.cos(math.radians(angle))
                 y = center_y - arc_radius * math.sin(math.radians(angle))
-                self.canvas.create_oval(
+
+
+                #  Angle from origin, length to extend past parent button
+                # x1, y1 = 50, 150  # <--  the origin
+                length = 50
+                angle_radians = math.radians(angle) * -1    #  why is this a -1?  it is a mystery
+                x2 = x + length * math.cos(angle_radians)
+                y2 = y + length * math.sin(angle_radians)
+
+                #  second line segment that will carry a text label
+                length = len(project['name']) * 10  #  assumes 10 pixels per character
+        
+                if x < self.x_origin:
+                    length = length * -1
+                angle_radians = math.radians(0)  #  at angle 0
+                x3 = x2 + length * math.cos(angle_radians)
+                y3 = y2 + length * math.sin(angle_radians)
+
+                #  multi-segmented line with join style of round and cap style of round
+                label_line_id = self.canvas.create_line(
+                    x,
+                    y,
+                    x2,
+                    y2,
+                    x3,
+                    y3,
+                    width=circle_radius + 15,
+                    state=tk.HIDDEN,
+                    fill=self.colors["label"],
+                    joinstyle="round",
+                    capstyle="round",
+                    tags=(f"secondary_line_{project['name']}", "label", "secondary"),
+                )
+
+                #  The label originates from the beginning of the second segment
+                label_text_id = self.canvas.create_text(
+                    (x2 + x3) / 2,
+                    y2,
+                    fill=self.colors["dark_text"],
+                    state=tk.HIDDEN,
+                    font="Times 16 bold",
+                    text=small_button_labels[i],
+                    tags=(f"secondary_line_{project['name']}", "text", "secondary"),
+                )
+
+                #  check if last row has start and stop times that are equal, and if this is a 'Start' button
+                last_row = self.df[self.df['project_name'] == project['name']].tail(1)
+                if small_button_labels[i] == 'Start' and last_row['start_time'].iloc[0] == last_row['stop_time'].iloc[0]:
+                    #  if true we want this button to look disabled
+                    fill = self.change_color_brightness(self.colors["bg"], 25)
+                    outline = self.change_color_brightness(self.colors["bg"], 25)
+                else:
+                    fill = self.colors["button"]
+                    outline = self.colors["bg"]
+
+                secondary_button = self.canvas.create_oval(
                     x - circle_radius,
                     y - circle_radius,
                     x + circle_radius,
                     y + circle_radius,
-                    tags=f"{project['name']}",
+                    tags=(f"button_{project['name']}", "button", "secondary", 
+                          f"button_{project['name']}_{small_button_labels[i]}",
+                          f"button_{button_number}_{small_button_labels[i]}"
+                          #f"button{self.secondary_buttons_list[button_number][i]}",
+                          
+                          ),
+
                     state=tk.HIDDEN,
-                    fill="red",
+                    outline=outline,
+                    width=5,
+                    fill=fill,
                 )
-            #                                tags="secondary_arc",
-        #                                fill=self.colors['text'],
-        #                                state=tk.HIDDEN,
-        #                                fill='grey'
-        #            radius = self.primary_radius / self.oval_scale_factor
-        #            self.buttons.append(PrimaryButton(project,
-        #                                              self.canvas,
-        #                                              self.x_origin,
-        #                                              self.y_origin,
-        #                                              radius,
-        #                                              angle,
-        #                                              self.primary_radius,
-        #                                              self.colors,
-        #                                              button_number
-        #                                              )
-        #                                )
-        #
-        #            #  functions are handled in the parent class
-        #            self.canvas.tag_bind(f'button{button_number}', '<Enter>',    lambda event, project=self.buttons[button_number].data, oval=self.buttons[button_number].oval_id: self.button_on_enter(event, project, oval)        )
-        #            self.canvas.tag_bind(f'button{button_number}', '<Leave>',    lambda event, project=self.buttons[button_number].data, oval=self.buttons[button_number].oval_id: self.button_on_leave(event, project, oval)        )
-        #            self.canvas.tag_bind(f'button{button_number}', '<Button-1>', lambda event, project=self.buttons[button_number].data, oval=self.buttons[button_number].oval_id: self.handle_button_click(event, project, oval)    )
 
-        # self.draw_default_buttons()
+                self.canvas.addtag_withtag(f"button{secondary_button}", secondary_button)
 
+                self.secondary_buttons_list[button_number].append(secondary_button)
+
+                self.canvas.create_text(
+                    x,
+                    y,
+                    fill=self.colors["text"],
+                    state=tk.HIDDEN,
+                    font="Times 16 bold",
+                    text=small_button_labels[i][0:3],
+                    tags=(f"button_text", f"button_{project['name']}_text", "secondary"),
+                )
+
+                self.canvas.tag_bind(
+                    f"button{self.secondary_buttons_list[button_number][i]}",
+                    "<Enter>",
+                    lambda event, project=project, button_type=small_button_labels[i], button=self.secondary_buttons_list[button_number][i]: self.secondary_button_on_enter(
+                        event, project, button_type, button
+                    ),
+                )
+
+                self.canvas.tag_bind(
+                    f"button{self.secondary_buttons_list[button_number][i]}",
+                    "<Leave>",
+                    lambda event, project=project, button_type=small_button_labels[i], button=self.secondary_buttons_list[button_number][i]: self.secondary_button_on_leave(
+                        event, project, button_type, button
+                    ),
+                )
+
+                self.canvas.tag_bind(
+                    f"button{self.secondary_buttons_list[button_number][i]}",
+                    "<Button-1>",
+                    lambda event, project=project, button_type=small_button_labels[i], button=self.secondary_buttons_list[button_number][i]: self.handle_secondary_button_click(
+                        event, project, button_type, button
+                    ),
+                )
+
+
+
+        # place all buttons over arcs
+        self.canvas.tag_raise("text", "label")
+        self.canvas.tag_raise("arc", "label")
+        self.canvas.tag_raise("button", "arc")
+        self.canvas.tag_raise("button_text", "button")
         self.open_ui()
 
     def draw_default_view(self) -> None:
@@ -245,46 +442,274 @@ class menu:
         # self.draw_border()
         self.draw_inner_oval()
 
-    #    def draw_default_buttons(self):
-    #        ''' draws X number of primary buttons based on contents of the input .yml file '''
-    #        self.draw_button()
 
-    # def draw_label(self, x1, y1):
-    #    ''' a label is a rectangle of a fixed length that extends from a button along the same angle from the origin.
-    #        this rectangle is capped with an oval of the same color, then the angle is to 0, then another
-    #        rectangle and oval is extended from this position.  The second rectangle will hold the description text.
-    #        The length of the second rectangle depends on the length of the description text.
-    #    '''
 
-    #    #  Angle from origin, length to extend past parent button
-    #    x1, y1 = 50, 150  # <--  the origin
-    #    length = 60
-    #    angle = 75
-    #    angle_radians = math.radians(angle)
-    #    x2 = x1 + length * math.cos(angle_radians)
-    #    y2 = y1 + length * math.sin(angle_radians)
-    #
-    #    #  second line segment that will carry a text label
-    #    length = 200
-    #    angle = 0
-    #    angle_radians = math.radians(angle)
-    #    x3 = x2 + length * math.cos(angle_radians)
-    #    y3 = y2 + length * math.sin(angle_radians)
-    #
-    #    # multi-segmented line with join style of round and cap style of round
-    #    self.canvas.create_line(x1, y1, x2, y2, x3, y3,
-    #                            width=self.primary_radius,
-    #                            state=tk.DISABLED,
-    #                            fill='#BABABA',
-    #                            joinstyle="round",
-    #                            capstyle="round")
+    def button_on_enter(self, event, project, oval_id) -> None:
+        print(f"ENTERED BUTTON OBJECT ID {oval_id}")
 
-    #    #  The label originates from the beginning of the second segment
-    #    self.canvas.create_text((x2+x3)/2, y2,
-    #                            fill="white",
-    #                            state=tk.DISABLED,
-    #                            font="Times 16 bold",
-    #                            text=self.data['projects'][j]['name'])
+        #  primary items hidden, button gains focus color
+        self.canvas.itemconfigure(oval_id, fill=self.colors["focus"])
+        self.canvas.itemconfigure("primary_label", state="hidden")
+
+        #  secondary items appear
+        self.canvas.itemconfigure(f"arc_{project['name']}", state="normal")
+        self.canvas.itemconfigure(f"button_{project['name']}", state="normal")
+        self.canvas.itemconfigure(f"button_{project['name']}_text", state="disabled")
+        self.canvas.itemconfigure(f"secondary_line_{project['name']}", state="disabled")
+
+        #  check if last row has start and stop times that are equal
+        last_row = self.df[self.df['project_name'] == project['name']].tail(1)
+        if last_row['start_time'].iloc[0] == last_row['stop_time'].iloc[0]:
+            #  if true we want this button to look disabled
+            self.canvas.itemconfigure(f"button_{project['name']}_Start", state="disabled", fill=self.change_color_brightness(self.colors["bg"], 25), outline=self.change_color_brightness(self.colors["bg"], 25))
+
+
+    def secondary_button_on_enter(self, event, project, button_type, oval_id) -> None:
+        print(f"ENTERED BUTTON OBJECT ID {oval_id}")
+
+        #  primary items hidden, button gains focus color
+        self.canvas.itemconfigure(oval_id, fill=self.colors["focus"])
+        self.canvas.itemconfigure("secondary_label", state="hidden")
+
+        #  secondary items appear
+        self.canvas.itemconfigure(f"secondary_line_{project['name']}", state="hidden")
+
+        #  check if last row has start and stop times that are equal
+        last_row = self.df[self.df['project_name'] == project['name']].tail(1)
+        if last_row['start_time'].iloc[0] == last_row['stop_time'].iloc[0]:
+            #  if true we want this button to look disabled
+            self.canvas.itemconfigure(f"button_{project['name']}_Start", fill=self.change_color_brightness(self.colors["bg"], 25), outline=self.change_color_brightness(self.colors["bg"], 25))
+
+
+    def button_on_leave(self, event, project, oval_id) -> None:
+        print(f"LEFT OBJECT ID {oval_id}")
+
+        #  regular button color returns, original lables appear
+        self.canvas.itemconfigure(oval_id, fill=self.colors["button"])
+        self.canvas.itemconfigure("primary_label", state="disabled")
+
+        #  hide secondary objects again
+        self.canvas.itemconfigure(f"arc_{project['name']}", state="hidden")
+        self.canvas.itemconfigure(f"button_{project['name']}", state="hidden")
+        self.canvas.itemconfigure(f"button_{project['name']}_text", state="hidden")
+        self.canvas.itemconfigure(f"secondary_line_{project['name']}", state="hidden")
+
+    def secondary_button_on_leave(self, event, project, button_type, oval_id) -> None:
+        print(f"LEFT BUTTON OBJECT ID {oval_id}")
+
+
+
+        #  primary items hidden, button gains focus color
+        self.canvas.itemconfigure(oval_id, fill=self.colors["button"])
+
+#        self.canvas.itemconfigure("secondary_label", state="hidden")
+#
+#        #  secondary items appear
+#        self.canvas.itemconfigure(f"secondary_line_{project['name']}", state="hidden")
+
+        #  check if last row has start and stop times that are equal
+        last_row = self.df[self.df['project_name'] == project['name']].tail(1)
+        if last_row['start_time'].iloc[0] == last_row['stop_time'].iloc[0]:
+            #  if true we want this button to look disabled
+            self.canvas.itemconfigure(f"button_{project['name']}_Start", fill=self.change_color_brightness(self.colors["bg"], 25), outline=self.change_color_brightness(self.colors["bg"], 25))
+
+
+
+    def arc_on_enter(self, event, project, arc_id) -> None:
+        print(f"ENTERED ARC OBJECT ID {arc_id}")
+
+        #  all primary labels hide
+        self.canvas.itemconfigure(f"arc_{project['name']}", state="normal")
+        self.canvas.itemconfigure(f"button_{project['name']}", state="normal")
+        self.canvas.itemconfigure(f"button_{project['name']}_text", state="disabled")
+        self.canvas.itemconfigure(f"secondary_line_{project['name']}", state="disabled")
+        #self.canvas.itemconfigure(f"button_{project['name']}", state="normal")
+        #self.canvas.itemconfigure(f"secondary_line_{project['name']}", state="disabled")
+        self.canvas.itemconfigure("primary_label", state="hidden")
+
+        #  check if last row has start and stop times that are equal
+        last_row = self.df[self.df['project_name'] == project['name']].tail(1)
+        if last_row['start_time'].iloc[0] == last_row['stop_time'].iloc[0]:
+            #  if true we want this button to look disabled
+            self.canvas.itemconfigure(f"button_{project['name']}_Start", fill=self.change_color_brightness(self.colors["bg"], 25), outline=self.change_color_brightness(self.colors["bg"], 25))
+
+
+
+    def arc_on_leave(self, event, project, arc_id) -> None:
+        print(f"LEFT ARC OBJECT ID {arc_id}")
+
+        #  all primary labels return to view
+        #self.canvas.itemconfigure(f"button_{project['name']}", state="hidden")
+        #self.canvas.itemconfigure(f"secondary_line_{project['name']}", state="hidden")
+
+
+
+###   TO DO:    add an enter/leave for primary oval that resets the view, make secondary buttons correcty do some action
+
+
+    #   now handled on child button object
+    def handle_button_click(self, event, project, oval_id) -> None:
+        print(f"primary_oval clicked: {oval_id}, {project['name']}")
+
+
+    def handle_secondary_button_click(self, event, project, button_type, oval_id) -> None:
+        print(f"secondary_oval clicked: {oval_id}, {project['name']}  {button_type}")
+        
+        project_name =  project['name']
+        project_id   =  project['id']
+        print("project_name: ", project_name)
+        #  find the last row for this project (if one exists)
+
+        last_row = self.df[self.df['project_name'] == project_name].tail(1)
+
+
+
+        if button_type == "Start":
+
+            # check if there is any row where start_time is not null and stop_time is empty or null
+            #if result:
+            if last_row['start_time'].iloc[0] == last_row['stop_time'].iloc[0]:
+                print('Start and stop times are equal.')
+            else:
+                print('Start and stop times are not equal.')
+                self.df.loc[len(self.df)] = [project_id, project_name, pd.to_datetime(datetime.now().strftime('%Y-%m-%d %H:%M:%S')), pd.to_datetime(datetime.now().strftime('%Y-%m-%d %H:%M:%S')), np.nan, ""]
+                #self.df.loc[len(self.df)] = [project_name, pd.to_datetime(datetime.now().strftime('%Y-%m-%d %H:%M:%S')), "", "", ""]
+
+                #  populate remark and stop_time empty or null column entries with empty string
+                self.df['remark'] = self.df['remark'].fillna('')
+                self.df['stop_time'] = self.df['stop_time'].fillna('')
+
+        elif button_type == "Stop":
+            ''' this will update the stop time of a project by selecting the last row of a given project_name if it exists
+                it will continue to update the final timestamp of that final row if the button is pressed multiple times
+                if the 'Start' button is pressed then a new row is generated
+            '''
+            #  update the stop_time value for the row - this applies to bottom row that might already have a stop time on it
+            self.df.loc[(self.df['project_name'] == project_name)].iloc[-1] = pd.to_datetime(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+            
+            # select the last row for the given project name
+            last_row_index = self.df.loc[self.df['project_name'] == project_name].index[-1]
+            
+            # update the stop time for the last row
+            self.df.loc[last_row_index, 'stop_time'] = pd.to_datetime(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+
+            time_delta_hours = round((self.df.loc[last_row_index, 'stop_time'] - self.df.loc[last_row_index, 'start_time']).seconds / 3600, 2)
+            self.df.loc[last_row_index, 'total_time'] = time_delta_hours
+
+            #  let start button be clickable again
+            self.canvas.itemconfigure(f"button_{project['name']}_Start", state="normal", fill=self.colors["button"], outline=self.colors["bg"])
+
+
+#            # check if there is any row where start_time is not null and stop_time is empty or null
+#            if result:
+#                print("The project has a start time but no stop time")
+#
+#                #  update the stop_time value for the row - this applies to bottom row that might already have a stop time on it
+#                self.df.loc[(self.df['project_name'] == project_name)].iloc[-1] = pd.to_datetime(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+#                
+#                # select the last row for the given project name
+#                last_row_index = self.df.loc[self.df['project_name'] == project_name].index[-1]
+#                
+#                # update the stop time for the last row
+#                self.df.loc[last_row_index, 'stop_time'] = pd.to_datetime(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+#
+#            else:
+#                print("The project has no start time or has both start and stop times")
+
+
+        elif button_type == "Remark":
+           # select the last row for the given project name
+            last_row_index = self.df.loc[self.df['project_name'] == project_name].index[-1]
+            
+            remark_text = self.df.loc[last_row_index, 'remark']
+
+            # Get the x and y coordinates of the mouse click
+            x = event.x
+            y = event.y
+            
+            # Create a non-modal dialog window
+            dialog = tk.Toplevel(self.root)
+            dialog_width = 400
+            dialog_height = 100
+            dialog.geometry("{}x{}+{}+{}".format(dialog_width, dialog_height, x, y))
+            # Add a label and text input field to the dialog window
+            #label = tk.Label(dialog, text=)
+            label = tk.Label(dialog, text="Add or change the comment for this entry", font=("Helvetica", 16))#, justify=tk.LEFT)
+            label.pack()
+    
+            
+            var = tk.StringVar(value=remark_text)
+    
+            # Remove the title bar of the dialog window
+            dialog.overrideredirect(True)
+        
+            text = tk.Text(dialog, width=50, height=5)
+            text.insert('1.0', remark_text) # Set default value
+            text.pack(pady=10)
+    
+            #entry = tk.Entry(dialog, width=50, height=20, textvariable=tk.StringVar(value='DEFAULT'))
+            #entry.pack(pady=10)
+            
+            def handle_ok():
+                # Get the value entered by the user
+                value = text.get('1.0', 'end-1c')
+                
+                # Print the value entered by the user
+                print(value.strip())
+                self.df.loc[last_row_index, 'remark'] = value.strip().replace("\n", "")
+                # Close the dialog window
+                dialog.destroy()
+                
+            # Add an OK button to the dialog window
+            #ok_button = tk.Button(dialog, text="OK", command=handle_ok, width=10, height=2)
+            #ok_button.pack(side=tk.LEFT, padx=10, pady=10)
+    
+            def handle_cancel():
+                # Close the dialog window
+                dialog.destroy()
+    
+            #cancel_button = tk.Button(dialog, text="Cancel", command=handle_cancel, width=10, height=2)
+            #cancel_button.pack(side=tk.RIGHT, padx=10, pady=10)
+            dialog.bind('<Return>', lambda event: handle_ok())
+            dialog.bind('<Escape>', lambda event: handle_cancel())
+    
+            dialog.geometry("+{}+{}".format(x, y))
+
+
+        print(self.df)
+        self.df.to_parquet(self.parquet_file, index=False)
+
+        # Read Parquet file into a DataFrame
+        temp_df = pd.read_parquet(self.parquet_file)
+        
+        # Write DataFrame to an Excel file
+        temp_df.to_excel('file.xlsx', index=False)
+
+        ##  export the DataFrame to an Excel file with each month in its own sheet
+        #writer = pd.ExcelWriter('data.xlsx', engine='xlsxwriter')
+        #for month in range(1, 13):
+        #    sheet_name = datetime.date(1900, month, 1).strftime('%B')
+        #    df_month = self.df[self.df['start_time'].dt.month == month]
+        #    df_month.to_excel(writer, sheet_name=sheet_name, index=False)
+        #writer.save()
+
+
+
+
+    def root_enter(self, print_item):
+        print("entered root")
+
+    def root_leave(self, print_item):
+        print("left root")
+        #  regular button color returns, original lables appear
+        #self.canvas.itemconfigure(oval_id, fill=self.colors["button"])
+        self.canvas.itemconfigure("primary", state="disabled")
+        self.canvas.itemconfigure("primary_buttons", state="normal")
+
+        #  hide secondary objects again
+        self.canvas.itemconfigure(f"secondary", state="hidden")
+        #self.canvas.itemconfigure(f"button_{project['name']}", state="hidden")
+        #self.canvas.itemconfigure(f"secondary_line_{project['name']}", state="hidden")
 
     def open_ui(self) -> None:
         """draw main ui component"""
@@ -304,91 +729,6 @@ class menu:
             fill=self.colors["bg"],
         )
 
-    #    def draw_border(self) -> None:
-    #        ''' draws the initial border around the menu '''
-    #
-    #
-    #        for i in range(self.oval_count):
-    #            angle = i * self.step
-    #            x = self.x_origin + self.primary_radius * math.cos(math.radians(angle))
-    #            y = self.y_origin + self.primary_radius * math.sin(math.radians(angle))
-    #            self.canvas.create_oval(x-self.small_oval_size,
-    #                                    y-self.small_oval_size,
-    #                                    x+self.small_oval_size,
-    #                                    y+self.small_oval_size,
-    #                                    outline="",
-    #                                    fill=self.colors['bg'])
-    #
-    #
-    #            #  this is junk code that might be used later to add extra circles for hints about sub menus, for now this is not needed
-    #            #####secondary_center_x = x
-    #            #####secondary_center_y = y
-    #            #####secondary_oval_count = 5
-    #            #####secondary_radius = self.primary_radius       # how far from origin
-    #            #####secondary_small_oval_size = 5  # diameter of oval
-    #            #####secondary_step = 150 / secondary_oval_count
-    #            ######  1 = 0
-    #            ######  2 = 30
-    #            ######  3 = 50
-    #            ######  4 = 55
-    #            ######  5 = 60
-    #            ######  6 = 62
-    #            ######  7 = 65
-    #            ######  8 = 67
-    #            #####for j in range(secondary_oval_count):
-    #            #####    #secondary_angle = (i * secondary_step + angle)
-    #            #####    secondary_angle = (angle - 67) + (j * secondary_step)
-    #            #####    x = secondary_center_x + secondary_radius * math.cos(math.radians(secondary_angle))
-    #            #####    y = secondary_center_y + secondary_radius * math.sin(math.radians(secondary_angle))
-    #            #####    self.canvas.create_oval(x-secondary_small_oval_size, y-secondary_small_oval_size, x+secondary_small_oval_size, y+secondary_small_oval_size, outline="", fill=self.colors['bg'])
-
-    #    def draw_button (self) -> None:
-    #        ''' draws all menu ovals in primary ring with default colors '''
-    #
-    #        for j in range(self.oval_count):
-    #            angle = j * self.step
-    #            x = self.x_origin + self.primary_radius * math.cos(math.radians(angle))
-    #            y = self.y_origin + self.primary_radius * math.sin(math.radians(angle))
-    #            oval = self.canvas.create_oval(x-self.small_oval_size,
-    #                                           y-self.small_oval_size,
-    #                                           x+self.small_oval_size,
-    #                                           y+self.small_oval_size,
-    #                                           outline=self.colors['bg'],
-    #                                           width=10,
-    #                                           fill=self.colors['button'],
-    #                                           activefill=self.colors['focus'],
-    #                                           #activeoutline="black",
-    #                                           #activedash=(5, 1, 2, 1),
-    #                                           tags=f'button{j}'
-    #                                           )
-    #
-    #            #  might use this later
-    #            self.canvas.tag_bind(f'button{j}', '<Enter>', lambda event, oval=oval: self.button_on_enter(event, oval))
-    #            self.canvas.tag_bind(f'button{j}', '<Leave>', lambda event, oval=oval: self.button_on_leave(event, oval))
-    #            self.canvas.tag_bind(f'button{j}', "<Button-1>", lambda event, oval=oval: self.handle_button_click(event, oval))
-    #            self.canvas.create_text(x, y, fill=self.colors['text'], state=tk.DISABLED, font="Times 16 bold", text=self.data['projects'][j]['name'][0:3]) #
-
-    def button_on_enter(self, event, project, oval_id) -> None:
-        print(f"ENTERED OBJECT ID {oval_id}")
-        self.canvas.itemconfigure(oval_id, fill=self.colors["focus"])
-
-        #  all primary labels hide
-        self.canvas.itemconfigure("primary_label", state="hidden")
-        self.canvas.itemconfigure(f"{project['name']}", state="disabled")
-
-    def button_on_leave(self, event, project, oval_id) -> None:
-        print(f"LEFT OBJECT ID {oval_id}")
-        self.canvas.itemconfigure(oval_id, fill=self.colors["button"])
-        # self.canvas.itemconfigure('primary_label', state='normal')
-
-        #  all primary labels return to view
-        self.canvas.itemconfigure("primary_label", state="disabled")
-        time.sleep(0.02)
-        self.canvas.itemconfigure(f"{project['name']}", state="hidden")
-
-    #   now handled on child button object
-    def handle_button_click(self, event, project, oval_id) -> None:
-        print(f"oval clicked: {oval_id}, {project['name']}")
 
     def set_root_properties(self) -> None:
         """setup root object attributes. The root object has no concept of x,y coordinates - just make it full screen and transparent"""
@@ -405,14 +745,57 @@ class menu:
             f"{self.root.winfo_screenwidth()}x{self.root.winfo_screenheight()}"
         )
 
-        #  escape key quits the UI
-        self.root.bind("<Escape>", lambda e: self.root.quit())
+        #  escape key quits the UI after writing excel file to disk
+        self.root.bind("<Escape>", self.make_excel)
+
+        #self.root.bind("<KeyPress-e>", self.make_excel)
+
+
+        self.root.bind ("<Enter>", self.root_enter)
+        self.root.bind("<Leave>", self.root_leave)
+
 
         #  Removes title bar, icon from system tray
         self.root.deiconify()
 
         #  update all root properties
         self.root.update_idletasks()
+
+
+    def make_excel(self, event) -> None:
+
+        # Create a new Excel workbook
+        wb = Workbook()
+        
+        # Loop through each unique month in the stop_time column and create a new sheet for each one
+        for month in self.df["stop_time"].dt.month.unique():
+            
+            #  filter the dataframe to only contain rows for the current month
+            df_month = self.df[self.df["stop_time"].dt.month == month]
+            
+            #  create a new sheet with the name of the current month
+            sheet_name = pd.Timestamp(year=df_month["stop_time"].iloc[0].year, month=month, day=1).strftime("%B %Y")
+            ws = wb.create_sheet(sheet_name)
+            
+            #  write the column headers to the sheet
+            for col_idx, col_name in enumerate(df_month.columns, 1):
+                col_letter = get_column_letter(col_idx)
+                ws[f"{col_letter}1"] = col_name
+            
+            #  write the data to the sheet
+            for row_idx, row_data in enumerate(df_month.values, 2):
+                for col_idx, cell_data in enumerate(row_data, 1):
+                    col_letter = get_column_letter(col_idx)
+                    ws[f"{col_letter}{row_idx}"] = cell_data
+        
+        #  delete this extra sheet that is generated
+        if "Sheet" in wb.sheetnames:
+            wb.remove(wb["Sheet"])
+
+        #  save the Excel workbook
+        wb.save(self.excel_path)
+        print("excel file saved")
+        self.root.quit()
 
     def change_color_brightness(
         self, hex_color_code: str, brightness_change: int

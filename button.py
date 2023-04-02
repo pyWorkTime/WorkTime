@@ -71,7 +71,7 @@ class PrimaryButton:
             fill=self.colors["label"],
             joinstyle="round",
             capstyle="round",
-            tags="primary_label",
+            tags=("primary_label",  "label", "primary"),
         )
 
         #  The label originates from the beginning of the second segment
@@ -82,7 +82,7 @@ class PrimaryButton:
             state=tk.DISABLED,
             font="Times 16 bold",
             text=self.data["name"],
-            tags="primary_label",
+            tags=("primary_label", "text", "primary")
         )
 
     def draw_button(self) -> None:
@@ -99,7 +99,7 @@ class PrimaryButton:
             # activefill=self.colors['focus'],
             # activeoutline="black",
             # activedash=(5, 1, 2, 1),
-            tags=f"button{self.button_number}",
+            tags=(f"button{self.button_number}",  "button", "primary", "primary_buttons"),
         )
 
         self.canvas.create_text(
@@ -109,6 +109,7 @@ class PrimaryButton:
             state=tk.DISABLED,
             font="Times 16 bold",
             text=self.data["name"][0:3],
+            tags=(f"button_text", "primary"),
         )
 
         #####  might use this later
@@ -119,6 +120,61 @@ class PrimaryButton:
 
     #  these are handled on parent object - unable to get them to work correctly here
 
+class SecondaryButton:
+    def __init__(
+        self,
+        #data,
+        canvas,
+        x_origin,
+        y_origin,
+        radius,
+        #angle,
+        distance_from_origin,
+        colors,
+        button_number,
+    ) -> None:
+        self.button_number = button_number
+        #self.data = data
+        self.canvas = canvas
+        self.x = x_origin
+        self.y = y_origin
+        self.radius = radius
+        #self.angle = angle
+        self.colors = colors
+        self.distance_from_origin = distance_from_origin
+
+        #self.x = self.x_origin + self.distance_from_origin * math.cos(
+        #    math.radians(self.angle)
+        #)
+        #self.y = self.y_origin + self.distance_from_origin * math.sin(
+        #    math.radians(self.angle)
+        #)
+        #
+        #self.draw_label()
+
+        self.draw_button()
+
+    def draw_button(self) -> None:
+        """draws all menu ovals in primary ring with default colors"""
+
+        self.oval_id = self.canvas.create_oval(
+            self.x - self.radius,
+            self.y - self.radius,
+            self.x + self.radius,
+            self.y + self.radius,
+            outline=self.colors["bg"],
+            state=tk.HIDDEN,
+            width=5,
+            fill=self.colors["button"],
+            # activefill=self.colors['focus'],
+            # activeoutline="black",
+            # activedash=(5, 1, 2, 1),
+            tags=(f"button{self.button_number}",
+            #f"button_{project['name']}", "button", "secondary", 
+            #f"button_{project['name']}_{small_button_labels[i]}",
+            #f"button_{button_number}_{small_button_labels[i]}"
+            ),
+        )
 
 #    def button_on_enter(self, event, oval):
 #        self.canvas.itemconfigure(oval, fill=self.colors['focus'])
