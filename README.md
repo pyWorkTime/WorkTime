@@ -125,8 +125,8 @@ This is an example of how to list things you need to use the software and how to
 
 ### Installation
 
-1. Get a free API Key at [https://example.com](https://example.com)
-2. Clone the repo
+
+1. Clone the repo
    ```sh
    git clone https://github.com/pyWorkTime/WorkTime.git
    ```
@@ -146,7 +146,27 @@ This is an example of how to list things you need to use the software and how to
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
+Create a new yaml file with .yml file extension.  You can create multiple yaml files you want to use multiple wheel menus on different binds.
+An example of the contents of default.yml file is below.
+
+```yaml
+---
+projects:
+  - name: Helium
+    id: 12345
+  - name: Argon
+    id: 54321
+  - name: Neon
+    id: 8675
+  - name: Iron
+    id: 5309
+  - name: Mercury
+    id: 777
+  - name: Oxygen
+    id: 888
+```
+
+This yaml file will produce a wheel menu with six items.  Each item will have a start/stop/remark button attached to it.
 
 _For more examples, please refer to the [Documentation](https://example.com)_
 
@@ -209,7 +229,7 @@ Project Link: [https://github.com/pyWorkTime/WorkTime](https://github.com/pyWork
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
 
-* []()
+* [https://vimeo.com/51072812?embedded=true&source=vimeo_logo&owner=1313676](Simon Schneegans)
 * []()
 * []()
 
