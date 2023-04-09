@@ -254,7 +254,7 @@ Project Link: [https://github.com/pyWorkTime/WorkTime](https://github.com/pyWork
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
 
-* [https://vimeo.com/51072812?embedded=true&source=vimeo_logo&owner=1313676](Simon Schneegans)
+* [Simon Schneegans idea for a coral menu ](https://vimeo.com/51072812?embedded=true&source=vimeo_logo&owner=1313676)
 * []()
 * []()
 
