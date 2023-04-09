@@ -126,18 +126,54 @@ This is an example of how to list things you need to use the software and how to
 ### Installation
 
 
-1. Clone the repo
+1. Clone the repo into an empty directory
    ```sh
    git clone https://github.com/pyWorkTime/WorkTime.git
    ```
-3. Install NPM packages
+3. Install required packages
    ```sh
-   npm install
+   pip3 install -r requirements.txt
    ```
-4. Enter your API in `config.js`
-   ```js
-   const API_KEY = 'ENTER YOUR API';
+4. Create the input yaml file(s). You can use multiple files, where each file represents a collection of projects. This might be useful if there are multiple clients and you need to track individual projects under each client.  You can then bind the UI with these elements to individual hotkeys.
+
+   ```yaml
+   ---
+   projects:
+     - name: Helium
+       id: 12345
+     - name: Argon
+       id: 54321
+     - name: Neon
+       id: 8675
+     - name: Iron
+       id: 5309
+     - name: Mercury
+       id: 777
+     - name: Oxygen
+       id: 888
    ```
+
+5. Bind to a hotkey or key combination of your choosing. This can be done via a tool such as:
+    - AutoHotKey
+    - AutoIT
+    - [Microsoft PowerToys - Keyboard Manager](https://learn.microsoft.com/en-us/windows/powertoys/keyboard-manager)
+    - Keyboard manufacturer's software (ie Corsair's iCUE)
+
+For example to bind the yaml file 'projects.yml' to cntrl+alt+p on Windows using AutoHotKey would look like this:
+
+```
+^!p::
+RunWait, C:\Windows\pyw.exe "C:\some\path\here\worktime.py" "projects.yml"
+return
+```
+
+Note that if you do not specify a .yml file name it will assume the file is title 'default.yml'.  The example below will use cntrl+alt+d to call the 'default.yml' file because no file argument is given.
+
+```
+^!d::
+RunWait, C:\Windows\pyw.exe "C:\some\path\here\worktime.py"
+return
+```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -149,22 +185,6 @@ This is an example of how to list things you need to use the software and how to
 Create a new yaml file with .yml file extension.  You can create multiple yaml files you want to use multiple wheel menus on different binds.
 An example of the contents of default.yml file is below.
 
-```yaml
----
-projects:
-  - name: Helium
-    id: 12345
-  - name: Argon
-    id: 54321
-  - name: Neon
-    id: 8675
-  - name: Iron
-    id: 5309
-  - name: Mercury
-    id: 777
-  - name: Oxygen
-    id: 888
-```
 
 This yaml file will produce a wheel menu with six items.  Each item will have a start/stop/remark button attached to it.
 
@@ -177,11 +197,13 @@ This yaml file will produce a wheel menu with six items.  Each item will have a 
 <!-- ROADMAP -->
 ## Roadmap
 
-- [X] Cleaned excel output remove unwanted entries
+- [X] Cleaned excel output to remove unwanted entries
+- [ ] Permissions problems if the excel file is currently in use by the user
 - [ ] Customizable idle timeout (current default is 10 seconds)
 - [ ] Theme support
 - [ ] Install via pip
 - [ ] It currently incorrectly calculates times that span multiple days as modulo of 24 hours, for example 134 hours (5 days and 14 hours) becomes 14 hours
+- [ ] Add visual indicator to primary ring to indicate which projects are currently running a timer.
 - [ ] Increase number of rings from 2 to 3
     - [ ] This should be dynamic based on user input
 
@@ -221,7 +243,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [@twitter_handle](https://twitter.com/twitter_handle) - email@email_client.com
+<!-- Your Name - [@twitter_handle](https://twitter.com/twitter_handle) - email@email_client.com -->
 
 Project Link: [https://github.com/pyWorkTime/WorkTime](https://github.com/pyWorkTime/WorkTime)
 
