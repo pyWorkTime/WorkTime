@@ -64,9 +64,10 @@
   <ol>
     <li>
       <a href="#about-the-project">About The Project</a>
+      <!--
       <ul>
         <li><a href="#built-with">Built With</a></li>
-      </ul>
+      </ul>-->
     </li>
     <li>
       <a href="#getting-started">Getting Started</a>
@@ -100,10 +101,12 @@
 * [![Vue][Vue.js]][Vue-url]
 * [![Angular][Angular.io]][Angular-url]
 * [![Svelte][Svelte.dev]][Svelte-url]
-* [![Laravel][Laravel.com]][Laravel-url]
-* [![Bootstrap][Bootstrap.com]][Bootstrap-url]
-* [![JQuery][JQuery.com]][JQuery-url]
+
+* [![Python3][Laravel.com]][https://www.python.org/]
+* [![Tkinter][Bootstrap.com]][Bootstrap-url]
+* [![Pandas][JQuery.com]][JQuery-url]
 -->
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
