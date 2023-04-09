@@ -134,23 +134,27 @@ This is an example of how to list things you need to use the software and how to
    ```sh
    pip3 install -r requirements.txt
    ```
-4. Create the input yaml file(s). You can use multiple files, where each file represents a collection of projects. This might be useful if there are multiple clients and you need to track individual projects under each client.  You can then bind the UI with these elements to individual hotkeys.
+4. Create the input yaml file(s). You can use multiple files, where each file represents a collection of projects. This might be useful if there are multiple clients and you need to track individual projects under each client.  You can then bind the UI with these elements to individual hotkeys.  The following example will create eight buttons on the primary UI interface:
 
    ```yaml
-   ---
-   projects:
-     - name: Helium
-       id: 12345
-     - name: Argon
-       id: 54321
-     - name: Neon
-       id: 8675
-     - name: Iron
-       id: 5309
-     - name: Mercury
-       id: 777
-     - name: Oxygen
-       id: 888
+  ---
+  projects:
+    - name: Helium
+      id: 11111
+    - name: Neon
+      id: 22222
+    - name: Boron
+      id: 33333
+    - name: Steel
+      id: 12345
+    - name: Argon
+      id: 55555
+    - name: Oxygen
+      id: 54321
+    - name: Uranium
+      id: 77777
+    - name: Cobalt
+      id: 88888
    ```
 
 5. Bind to a hotkey or key combination of your choosing. This can be done via a tool such as:
@@ -185,8 +189,10 @@ return
 Create a new yaml file with .yml file extension.  You can create multiple yaml files you want to use multiple wheel menus on different binds.
 An example of the contents of default.yml file is below.
 
+Each item in the .yml file will have a start/stop/remark button attached to it.
 
-This yaml file will produce a wheel menu with six items.  Each item will have a start/stop/remark button attached to it.
+![Usage Demo](images/start_and_stop_timer.gif)
+
 
 <!-- _For more examples, please refer to the [Documentation](https://example.com)_ -->
 
