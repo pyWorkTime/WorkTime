@@ -28,8 +28,9 @@
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
+<!--
 [![LinkedIn][linkedin-shield]][linkedin-url]
-
+-->
 
 
 <!-- PROJECT LOGO -->
@@ -90,8 +91,6 @@
 
 [![Product Name Screen Shot][product-screenshot]](images/screenshot.png)
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 
 <!--
 ### Built With
@@ -112,16 +111,12 @@
 <!-- GETTING STARTED -->
 ## Getting Started
 
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
+
 
 ### Prerequisites
 
-This is an example of how to list things you need to use the software and how to install them.
-* npm
-  ```sh
-  npm install npm@latest -g
-  ```
+* Python3
+* Software to bind keys or mouse buttons to execute a file (AHK/AutoIT/Corsair iCUE/Windows PowerToys Keyboard Manager/and so on)
 
 ### Installation
 
@@ -186,8 +181,8 @@ return
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-Create a new yaml file with .yml file extension.  You can create multiple yaml files you want to use multiple wheel menus on different binds.
-An example of the contents of default.yml file is below.
+Create a new yaml file with .yml file extension.  You can create multiple yaml files if you want to use multiple wheel menus on different binds.
+An example of the contents of default.yml file is above.
 
 Each item in the .yml file will have a start/stop/remark button attached to it.
 
@@ -199,6 +194,7 @@ This produces the following entry automatically into an excel file.
 
 The excel file will include one entry each time the start/stop buttons are cycled. Remarks or comments are optional.  The Remark button will always edit the latest entry.
 
+If you want to delete all data, simply delete the associated .parquet file for that project group.
 
 <!-- _For more examples, please refer to the [Documentation](https://example.com)_ -->
 
