@@ -266,9 +266,10 @@ Project Link: [https://github.com/pyWorkTime/WorkTime](https://github.com/pyWork
 ## Acknowledgments
 
 * [Simon Schneegans idea for a coral menu ](https://vimeo.com/51072812?embedded=true&source=vimeo_logo&owner=1313676)
+<!--
 * []()
 * []()
-
+ -->
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
