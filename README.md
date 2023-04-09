@@ -168,7 +168,7 @@ projects:
 
 This yaml file will produce a wheel menu with six items.  Each item will have a start/stop/remark button attached to it.
 
-_For more examples, please refer to the [Documentation](https://example.com)_
+<!-- _For more examples, please refer to the [Documentation](https://example.com)_ -->
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -177,8 +177,8 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 <!-- ROADMAP -->
 ## Roadmap
 
-- [ ] Customizable idle timeout
 - [X] Cleaned excel output remove unwanted entries
+- [ ] Customizable idle timeout (current default is 10 seconds)
 - [ ] Theme support
 - [ ] Install via pip
 - [ ] It currently incorrectly calculates times that span multiple days as modulo of 24 hours, for example 134 hours (5 days and 14 hours) becomes 14 hours

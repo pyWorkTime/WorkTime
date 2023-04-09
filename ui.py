@@ -20,15 +20,16 @@ class menu:
 
         self.parquet_file = parquet_file
 
-
+        #  read in parquet file and establish path for excel file output
         self.df = pd.read_parquet(os.path.abspath(parquet_file))
-        self.excel_path = f"{os.path.abspath(parquet_file)}.xlsx"
+        self.excel_path = os.path.abspath(parquet_file).replace("parquet", "xlsx")
+
         self.root = tk.Tk()
         self.set_root_properties()
         self.x_origin, self.y_origin = self.root.winfo_pointerxy()
 
         #  this should be configurable in a later update
-        self.idle_timeout_mseconds = 5000
+        self.idle_timeout_mseconds = 10000
         self.reset_timer()
 
 
@@ -683,21 +684,6 @@ class menu:
         print(self.df)
         self.df.to_parquet(self.parquet_file, index=False)
 
-        # Read Parquet file into a DataFrame
-        temp_df = pd.read_parquet(self.parquet_file)
-        
-        # Write DataFrame to an Excel file
-        temp_df.to_excel('file.xlsx', index=False)
-
-        ##  export the DataFrame to an Excel file with each month in its own sheet
-        #writer = pd.ExcelWriter('data.xlsx', engine='xlsxwriter')
-        #for month in range(1, 13):
-        #    sheet_name = datetime.date(1900, month, 1).strftime('%B')
-        #    df_month = self.df[self.df['start_time'].dt.month == month]
-        #    df_month.to_excel(writer, sheet_name=sheet_name, index=False)
-        #writer.save()
-
-
 
 
     def root_enter(self, print_item):
@@ -786,6 +772,10 @@ class menu:
             #  filter the dataframe to only contain rows for the current month
             df_month = self.df[self.df["stop_time"].dt.month == month]
             
+            #  filter the dataframe to exclude rows with 'starter entry - ignore
+            # ' in the remark column
+            df_month = df_month[~df_month["remark"].str.contains("starter entry - ignore")]
+
             #  create a new sheet with the name of the current month
             sheet_name = pd.Timestamp(year=df_month["stop_time"].iloc[0].year, month=month, day=1).strftime("%B %Y")
             ws = wb.create_sheet(sheet_name)
