@@ -178,8 +178,10 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 ## Roadmap
 
 - [ ] Customizable idle timeout
+- [X] Cleaned excel output remove unwanted entries
 - [ ] Theme support
 - [ ] Install via pip
+- [ ] It currently incorrectly calculates times that span multiple days as modulo of 24 hours, for example 134 hours (5 days and 14 hours) becomes 14 hours
 - [ ] Increase number of rings from 2 to 3
     - [ ] This should be dynamic based on user input
 
