@@ -177,10 +177,11 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 <!-- ROADMAP -->
 ## Roadmap
 
-- [ ] Feature 1
-- [ ] Feature 2
-- [ ] Feature 3
-    - [ ] Nested Feature
+- [ ] Customizable idle timeout
+- [ ] Theme support
+- [ ] Install via pip
+- [ ] Increase number of rings from 2 to 3
+    - [ ] This should be dynamic based on user input
 
 See the [open issues](https://github.com/pyWorkTime/WorkTime/issues) for a full list of proposed features (and known issues).
 
