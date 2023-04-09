@@ -20,19 +20,16 @@ class menu:
 
         self.parquet_file = parquet_file
 
+
         self.df = pd.read_parquet(os.path.abspath(parquet_file))
         self.excel_path = f"{os.path.abspath(parquet_file)}.xlsx"
         self.root = tk.Tk()
         self.set_root_properties()
         self.x_origin, self.y_origin = self.root.winfo_pointerxy()
 
-        #def on_focus_out(event):
-        #    # Exit the program
-        #    print("LOST FOCUS")
-        #    self.root.destroy()
-        #
-        ## Bind the on_focus_out function to the <FocusOut> event of the main window
-        #self.root.bind('<FocusOut>', on_focus_out)
+        #  this should be configurable in a later update
+        self.idle_timeout_mseconds = 5000
+        self.reset_timer()
 
 
         #  default colors
@@ -443,9 +440,14 @@ class menu:
         self.draw_inner_oval()
 
 
+    def reset_timer(self):
+        if hasattr(self, 'timer'):
+            self.root.after_cancel(self.timer)
+        self.timer = self.root.after(self.idle_timeout_mseconds, self.exit_if_idle)
 
     def button_on_enter(self, event, project, oval_id) -> None:
         print(f"ENTERED BUTTON OBJECT ID {oval_id}")
+        self.reset_timer()
 
         #  primary items hidden, button gains focus color
         self.canvas.itemconfigure(oval_id, fill=self.colors["focus"])
@@ -466,6 +468,7 @@ class menu:
 
     def secondary_button_on_enter(self, event, project, button_type, oval_id) -> None:
         print(f"ENTERED BUTTON OBJECT ID {oval_id}")
+        self.reset_timer()
 
         #  primary items hidden, button gains focus color
         self.canvas.itemconfigure(oval_id, fill=self.colors["focus"])
@@ -483,6 +486,7 @@ class menu:
 
     def button_on_leave(self, event, project, oval_id) -> None:
         print(f"LEFT OBJECT ID {oval_id}")
+        self.reset_timer()
 
         #  regular button color returns, original lables appear
         self.canvas.itemconfigure(oval_id, fill=self.colors["button"])
@@ -496,7 +500,7 @@ class menu:
 
     def secondary_button_on_leave(self, event, project, button_type, oval_id) -> None:
         print(f"LEFT BUTTON OBJECT ID {oval_id}")
-
+        self.reset_timer()
 
 
         #  primary items hidden, button gains focus color
@@ -517,7 +521,7 @@ class menu:
 
     def arc_on_enter(self, event, project, arc_id) -> None:
         print(f"ENTERED ARC OBJECT ID {arc_id}")
-
+        self.reset_timer()
         #  all primary labels hide
         self.canvas.itemconfigure(f"arc_{project['name']}", state="normal")
         self.canvas.itemconfigure(f"button_{project['name']}", state="normal")
@@ -537,7 +541,7 @@ class menu:
 
     def arc_on_leave(self, event, project, arc_id) -> None:
         print(f"LEFT ARC OBJECT ID {arc_id}")
-
+        self.reset_timer()
         #  all primary labels return to view
         #self.canvas.itemconfigure(f"button_{project['name']}", state="hidden")
         #self.canvas.itemconfigure(f"secondary_line_{project['name']}", state="hidden")
@@ -550,11 +554,11 @@ class menu:
     #   now handled on child button object
     def handle_button_click(self, event, project, oval_id) -> None:
         print(f"primary_oval clicked: {oval_id}, {project['name']}")
-
+        self.reset_timer()
 
     def handle_secondary_button_click(self, event, project, button_type, oval_id) -> None:
         print(f"secondary_oval clicked: {oval_id}, {project['name']}  {button_type}")
-        
+        self.reset_timer()
         project_name =  project['name']
         project_id   =  project['id']
         print("project_name: ", project_name)
@@ -698,9 +702,13 @@ class menu:
 
     def root_enter(self, print_item):
         print("entered root")
+        self.reset_timer()
+
 
     def root_leave(self, print_item):
         print("left root")
+        self.reset_timer()
+
         #  regular button color returns, original lables appear
         #self.canvas.itemconfigure(oval_id, fill=self.colors["button"])
         self.canvas.itemconfigure("primary", state="disabled")
@@ -748,7 +756,6 @@ class menu:
         #  escape key quits the UI after writing excel file to disk
         self.root.bind("<Escape>", self.make_excel)
 
-        #self.root.bind("<KeyPress-e>", self.make_excel)
 
 
         self.root.bind ("<Enter>", self.root_enter)
@@ -760,6 +767,12 @@ class menu:
 
         #  update all root properties
         self.root.update_idletasks()
+
+    def exit_if_idle(self):
+        if not self.root.winfo_exists():
+            return
+        
+        self.make_excel(event="nothing")
 
 
     def make_excel(self, event) -> None:
