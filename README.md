@@ -136,7 +136,7 @@ This is an example of how to list things you need to use the software and how to
    ```
 4. Create the input yaml file(s). You can use multiple files, where each file represents a collection of projects. This might be useful if there are multiple clients and you need to track individual projects under each client.  You can then bind the UI with these elements to individual hotkeys.  The following example will create eight buttons on the primary UI interface:
 
-   ```yaml
+```yaml
   ---
   projects:
     - name: Helium
@@ -155,7 +155,7 @@ This is an example of how to list things you need to use the software and how to
       id: 77777
     - name: Cobalt
       id: 88888
-   ```
+```
 
 5. Bind to a hotkey or key combination of your choosing. This can be done via a tool such as:
     - AutoHotKey
