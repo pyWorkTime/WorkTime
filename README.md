@@ -88,7 +88,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
+[![Product Name Screen Shot][product-screenshot]](images/screenshot.png)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -192,6 +192,12 @@ An example of the contents of default.yml file is below.
 Each item in the .yml file will have a start/stop/remark button attached to it.
 
 ![Usage Demo](images/start_and_stop_timer.gif)
+
+This produces the following entry automatically into an excel file.
+
+![Usage Demo](images/output.png)
+
+The excel file will include one entry each time the start/stop buttons are cycled. Remarks or comments are optional.  The Remark button will always edit the latest entry.
 
 
 <!-- _For more examples, please refer to the [Documentation](https://example.com)_ -->
