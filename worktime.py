@@ -10,11 +10,20 @@ import pyarrow.parquet as pq
 from ui import menu
 
 
+def convert_to_string(data):
+    """ Recursively convert all values to string type. """
+    if isinstance(data, dict):
+        return {k: convert_to_string(v) for k, v in data.items()}
+    elif isinstance(data, list):
+        return [convert_to_string(item) for item in data]
+    else:
+        return str(data)
+
 def main():
     """read in the user supplied yaml data then call the ui object"""
 
     try:
-        yaml_file_path = f"{sys.argv[1]}"
+        yaml_file_path = f"{sys.argv[1]}.yml"
         parquet_file_path = f"{sys.argv[1]}.parquet"
     except:
         yaml_file_path = "default.yml"
@@ -22,8 +31,12 @@ def main():
 
     yaml_path = Path(__file__).with_name(yaml_file_path)
     parquet_path = Path(__file__).with_name(parquet_file_path)
-    with yaml_path.open("r") as f:
-        data = yaml.load(f, Loader=SafeLoader)
+    with yaml_path.open("r", encoding='utf-8') as f:
+        try:
+            data = yaml.load(f, Loader=SafeLoader)
+            data = convert_to_string(data)
+        except yaml.YAMLError as e:
+            print(f"Failed to load YAML file {yaml_path}: {e}")
 
     if os.path.exists(parquet_path):
 
@@ -32,7 +45,7 @@ def main():
             pq.ParquetFile(parquet_path)
             print("The Parquet file is valid")
         except Exception as e:
-            print("The Parquet file is not valid: ", e)
+            quit("The Parquet file is not valid: ", e)
 
     else:
         #  create a DataFrame with header row only
@@ -40,6 +53,9 @@ def main():
 
         #  pyarrow does not support writing to parquet file without index, so we can just drop it from the data frame initially
         df_header.reset_index(drop=True)
+        df_header['project_id'] = df_header['project_id'].astype(str)
+        df_header['project_name'] = df_header['project_name'].astype(str)
+        df_header['remark'] = df_header['remark'].astype(str)
 
         #  write the header row to the parquet file using DataFrame.to_parquet()
         df_header.to_parquet(parquet_path, engine='pyarrow', partition_cols=None)

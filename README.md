@@ -163,7 +163,7 @@ For example to bind the yaml file 'projects.yml' to cntrl+alt+p on Windows using
 
 ```
 ^!p::
-RunWait, C:\Windows\pyw.exe "C:\some\path\here\worktime.py" "projects.yml"
+RunWait, C:\Windows\pyw.exe "C:\some\path\here\worktime.py" "projects"
 return
 ```
 

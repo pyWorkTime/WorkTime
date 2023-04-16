@@ -378,7 +378,6 @@ class menu:
                           f"button_{project['name']}_{small_button_labels[i]}",
                           f"button_{button_number}_{small_button_labels[i]}"
                           #f"button{self.secondary_buttons_list[button_number][i]}",
-                          
                           ),
 
                     state=tk.HIDDEN,
@@ -473,10 +472,10 @@ class menu:
 
         #  primary items hidden, button gains focus color
         self.canvas.itemconfigure(oval_id, fill=self.colors["focus"])
-        self.canvas.itemconfigure("secondary_label", state="hidden")
+        #self.canvas.itemconfigure("secondary_label", state="hidden")
 
-        #  secondary items appear
-        self.canvas.itemconfigure(f"secondary_line_{project['name']}", state="hidden")
+        #  secondary items disappear
+        #self.canvas.itemconfigure(f"secondary_line_{project['name']}", state="hidden")
 
         #  check if last row has start and stop times that are equal
         last_row = self.df[self.df['project_name'] == project['name']].tail(1)
